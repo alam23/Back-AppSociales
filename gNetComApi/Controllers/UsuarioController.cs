@@ -45,6 +45,35 @@ namespace gNetComApi.Controllers
 
             
         }
+        [HttpGet]
+        [Route("listDatosPerfil")]
+        public async Task<IActionResult> GetProfile(string UserId )
+        {
+            var lista = await _db.Users.Where(x => 
+            x.UserId == UserId
+            ).ToListAsync();
+            
+            if (lista.Count > 0)
+            {
+                var result = new List<ProfileDto>();
+                foreach (var item in lista)
+                {
+                    var profileDto = new ProfileDto();
+                    profileDto.CellNumber = item.CellNumber;
+                    profileDto.Name = item.Name;
+                    profileDto.UserName = item.UserName;
+                    profileDto.LastName = item.LastName;
+                    result.Add(profileDto);
+                }
+                return Ok(result);
+            }
+            else
+            {
+                return Ok("Usuario no encontrado");
+            }
+
+
+        }
 
         [HttpPost("registro")]
         public async Task<IActionResult> Registrar([FromBody] newUserDto usuario)
