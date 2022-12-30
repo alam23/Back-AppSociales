@@ -53,8 +53,18 @@ namespace gNetComApi.Controllers
             {
                 return BadRequest("ingrese datos correctos");
             }
-            var validar = await _db.Users.OrderByDescending(t => t.UserId).FirstOrDefaultAsync();
-            if (validar.UserName == usuario.UserName)
+            var validar = await _db.Users.OrderByDescending(t => t.UserId).ToListAsync();
+            int comparador = 0;
+            var validarNombre = "";
+            foreach (var item in validar)
+            {
+                if (Convert.ToInt32(item.UserId)>comparador)
+                {
+                    validarNombre = item.UserName;
+                    comparador = Convert.ToInt32(item.UserId);
+                }
+            }
+            if (validarNombre == usuario.UserName)
             {
                 return BadRequest("Usuario ya existente, por favor cambiar UserName");
             }
@@ -62,7 +72,7 @@ namespace gNetComApi.Controllers
             if (validar != null)
             {
                 var nuevoUsuarioBD = new User();
-                nuevoUsuarioBD.UserId = (Convert.ToInt64(validar.UserId) + 1).ToString();
+                nuevoUsuarioBD.UserId = (comparador + 1).ToString();
                 nuevoUsuarioBD.UserName = usuario.UserName;
                 nuevoUsuarioBD.Password = usuario.Password;
                 nuevoUsuarioBD.Name = usuario.Name;

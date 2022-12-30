@@ -57,8 +57,18 @@ namespace gNetComApi.Controllers
                 return BadRequest("ingrese datos correctos");
             }
             var nuevaRuta = new Models.Route();
-            var validar = await _db.Routes.OrderByDescending(t => t.RouteId).FirstOrDefaultAsync();
-            nuevaRuta.RouteId = (Convert.ToInt64(validar.RouteId) + 1).ToString();
+            var validar = await _db.Routes.OrderByDescending(t => t.RouteId).ToListAsync();
+            int comparador = 0;
+            var validarNombre = "";
+            foreach (var item in validar)
+            {
+                if (Convert.ToInt32(item.RouteId) > comparador)
+                {
+                    validarNombre = item.RouteId;
+                    comparador = Convert.ToInt32(item.RouteId);
+                }
+            }
+            nuevaRuta.RouteId = (comparador + 1).ToString();
             nuevaRuta.UserOwner = ruta.UserId;
             nuevaRuta.Name = ruta.Name;
             nuevaRuta.Description = ruta.Description;
@@ -66,8 +76,18 @@ namespace gNetComApi.Controllers
             await _db.Routes.AddAsync(nuevaRuta);
             await _db.SaveChangesAsync();
             var enlazar = new Models.UserRoute();
-            var validar02 = await _db.UserRoutes.OrderByDescending(t => t.Id).FirstOrDefaultAsync();
-            enlazar.Id = (Convert.ToInt64(validar02.Id) + 1).ToString();
+            var validar02 = await _db.UserRoutes.OrderByDescending(t => t.Id).ToListAsync();
+            int comparador02 = 0;
+            var validarNombre02 = "";
+            foreach (var item in validar02)
+            {
+                if (Convert.ToInt32(item.Id) > comparador02)
+                {
+                    //validarNombre = item.UserName;
+                    comparador02 = Convert.ToInt32(item.Id);
+                }
+            }
+            enlazar.Id = (comparador02 + 1).ToString();
             enlazar.UserId = ruta.UserId;
             enlazar.RouteId = nuevaRuta.RouteId;
 
@@ -75,11 +95,22 @@ namespace gNetComApi.Controllers
             await _db.UserRoutes.AddAsync(enlazar);
             await _db.SaveChangesAsync();
 
-            var newUser = await _db.Routes.OrderByDescending(t => t.RouteId).FirstOrDefaultAsync();
+            var validar03 = await _db.Routes.OrderByDescending(t => t.RouteId).ToListAsync();
+            int comparador03 = 0;
+            //var validarNombre = "";
+            foreach (var item in validar03)
+            {
+                if (Convert.ToInt32(item.RouteId) > comparador03)
+                {
+                    //validarNombre = item.UserName;
+                    comparador03 = Convert.ToInt32(item.RouteId);
+                }
+            }
+            var newUser = await _db.Routes.Where(x => x.RouteId == comparador03.ToString()).ToListAsync();
 
 
 
-            return Ok(newUser);         
+            return Ok(newUser[0]);         
             
         }
 
@@ -113,8 +144,18 @@ namespace gNetComApi.Controllers
                 return BadRequest("ingrese datos correctos");
             }
             var nuevoPost = new Models.Post();
-            var validar = await _db.Posts.OrderByDescending(t => t.PostId).FirstOrDefaultAsync();
-            nuevoPost.PostId = (Convert.ToInt64(validar.PostId) + 1).ToString();
+            var validar = await _db.Posts.OrderByDescending(t => t.PostId).ToListAsync();
+            int comparador = 0;
+            var validarNombre = "";
+            foreach (var item in validar)
+            {
+                if (Convert.ToInt32(item.PostId) > comparador)
+                {
+                    //validarNombre = item.UserName;
+                    comparador = Convert.ToInt32(item.PostId);
+                }
+            }
+            nuevoPost.PostId = (comparador + 1).ToString();
             nuevoPost.UserId = post.UserId;
             nuevoPost.RouteId = post.RouteId;
             nuevoPost.Title = post.Title;
@@ -123,11 +164,11 @@ namespace gNetComApi.Controllers
             await _db.Posts.AddAsync(nuevoPost);
             await _db.SaveChangesAsync();
             
-            var newPost = await _db.Posts.OrderByDescending(t => t.UserId == post.UserId).FirstOrDefaultAsync();
+            var newPost = await _db.Posts.Select(x=>x.PostId == nuevoPost.PostId).ToListAsync();
 
 
 
-            return Ok(newPost);
+            return Ok(newPost[0]);
 
         }
 
@@ -139,17 +180,25 @@ namespace gNetComApi.Controllers
                 return BadRequest("ingrese datos correctos");
             }
             var nuevoPost = new Models.Commentary();
-            var validar = await _db.Commentaries.OrderByDescending(t => t.CommentId).FirstOrDefaultAsync();
-            nuevoPost.CommentId = (Convert.ToInt64(validar.CommentId) + 1).ToString();
+            var validar = await _db.Commentaries.OrderByDescending(t => t.CommentId).ToListAsync();
+            int comparador = 0;
+            //var validarNombre = "";
+            foreach (var item in validar)
+            {
+                if (Convert.ToInt32(item.CommentId) > comparador)
+                {
+                    //validarNombre = item.UserName;
+                    comparador = Convert.ToInt32(item.CommentId);
+                }
+            }
+            nuevoPost.CommentId = (comparador + 1).ToString();
             nuevoPost.UserId = post.UserId;
             nuevoPost.PostId = post.PostId;
             nuevoPost.Body = post.Body;
             await _db.Commentaries.AddAsync(nuevoPost);
             await _db.SaveChangesAsync();
 
-            var newPost = await _db.Commentaries.OrderByDescending(t => t.UserId == post.UserId).FirstOrDefaultAsync();
-
-
+            var newPost = await _db.Commentaries.Where(t => t.CommentId == nuevoPost.CommentId).FirstOrDefaultAsync();
 
             return Ok(newPost);
 
