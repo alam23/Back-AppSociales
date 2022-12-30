@@ -47,7 +47,7 @@ namespace gNetComApi.Controllers
         }
         [HttpGet]
         [Route("listDatosPerfil")]
-        public async Task<IActionResult> GetProfile(string UserId )
+        public async Task<IActionResult> GetProfile(string UserId)
         {
             var lista = await _db.Users.Where(x => 
             x.UserId == UserId
@@ -71,8 +71,49 @@ namespace gNetComApi.Controllers
             {
                 return Ok("Usuario no encontrado");
             }
+        }
+        [HttpPost]
+        [Route("updateDatosPerfil")]
+        public async Task<IActionResult> UpdateProfile([FromBody] updateProfileDto profile)
+        {
+            var lista = _db.Users.SingleOrDefault(x =>
+            x.UserId == profile.UserId
+            );
 
+            if (lista!= null)
+            {
+                lista.CellNumber = profile.CellNumber;
+                lista.Name = profile.Name;
+                lista.LastName = profile.LastName;
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                return Ok("Usuario no encontrado");
+            }
 
+            var lista2 = await _db.Users.Where(x =>
+            x.UserId == profile.UserId
+            ).ToListAsync();
+
+            if (lista2.Count > 0)
+            {
+                var result = new List<ProfileDto>();
+                foreach (var item in lista2)
+                {
+                    var profileDto = new ProfileDto();
+                    profileDto.CellNumber = item.CellNumber;
+                    profileDto.Name = item.Name;
+                    profileDto.UserName = item.UserName;
+                    profileDto.LastName = item.LastName;
+                    result.Add(profileDto);
+                }
+                return Ok(result);
+            }
+            else
+            {
+                return Ok("Usuario no encontrado");
+            }
         }
 
         [HttpPost("registro")]
